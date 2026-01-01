@@ -1,0 +1,10 @@
+[general]
+import = [
+  "~/.cache/wal/colors-alacritty.toml"
+]
+[window]
+opacity = 0.8
+
+[font]
+size = 9
+
