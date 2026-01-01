@@ -1,0 +1,7 @@
+#!/bin/sh
+
+wal -i "$1"
+
+cd ~/suckless/dmenu || exit
+sudo make clean install
+

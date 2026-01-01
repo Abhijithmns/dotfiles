@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Click actions
+case "$BLOCK_BUTTON" in
+    1) bluetoothctl power toggle ;;
+    3) setsid -f blueman-manager ;;
+esac
+
+# If Bluetooth is powered off
+bluetoothctl show 2>/dev/null | grep -q "Powered: yes" || {
+    echo "󰂲 off"
+    exit 0
+}
+
+# Get connected devices
+devices="$(bluetoothctl devices Connected 2>/dev/null)"
+count="$(echo "$devices" | grep -c '^Device')"
+
+# Bluetooth on but no devices connected
+[ "$count" -eq 0 ] && {
+    echo " on"
+    exit 0
+}
+
+# Extract and shorten device names
+names="$(echo "$devices" \
+    | cut -d' ' -f3- \
+    | sed 's/^\(.\{10\}\).*/\1/')"
+
+# Output: icon + count + names
+echo " $count $names"
+

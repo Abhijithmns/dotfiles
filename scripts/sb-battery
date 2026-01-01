@@ -1,0 +1,26 @@
+#!/bin/sh
+
+BAT="/sys/class/power_supply/BAT0"
+
+[ -r "$BAT/capacity" ] || exit 0
+
+cap=$(<"$BAT/capacity")
+status=$(<"$BAT/status")
+
+# icon by status
+case "$status" in
+    Charging)    icon="" ;;
+    Full)        icon="" ;;
+    Discharging)
+        if   [ "$cap" -ge 80 ]; then icon=""
+        elif [ "$cap" -ge 60 ]; then icon=""
+        elif [ "$cap" -ge 40 ]; then icon=""
+        elif [ "$cap" -ge 20 ]; then icon=""
+        else                        icon=""
+        fi
+        ;;
+    *) icon="" ;;
+esac
+
+echo "$icon $cap%"
+
