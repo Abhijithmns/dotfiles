@@ -156,4 +156,3 @@ export PATH="$HOME/bin:$PATH"
 alias vi='nvim'
 [ -f "$HOME/.cache/wal/sequences" ] && cat "$HOME/.cache/wal/sequences"
 
-
