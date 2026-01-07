@@ -9,7 +9,6 @@ export OSH='/home/abhijith/.oh-my-bash'
 OSH_THEME="agnoster"
 #agnoster
 
-# Uncomment the following line to use case-sensitive completion.
 # OMB_CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion. Case
