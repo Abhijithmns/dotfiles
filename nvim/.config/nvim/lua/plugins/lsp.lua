@@ -27,14 +27,18 @@ return {
         return mason_bin .. name
       end
 
+      -- FIXED: safe root directory detection
+      local function get_root()
+        local git = vim.fs.find({ ".git" }, { upward = true })[1]
+        return git and vim.fs.dirname(git) or vim.loop.cwd()
+      end
+
       local function start(name, opts)
         vim.lsp.start({
           name = name,
           cmd = opts.cmd,
           filetypes = opts.filetypes,
-          root_dir = opts.root_dir or vim.fs.dirname(
-            vim.fs.find({ ".git" }, { upward = true })[1]
-          ),
+          root_dir = opts.root_dir or get_root(),
           settings = opts.settings,
         })
       end
@@ -64,7 +68,7 @@ return {
       })
 
       ----------------------------------------------------------------
-      -- JavaScript / TypeScript / React / Node / Express
+      -- JavaScript / TypeScript / React
       ----------------------------------------------------------------
       start("vtsls", {
         cmd = { bin("vtsls"), "--stdio" },
