@@ -18,6 +18,8 @@ vim.api.nvim_set_keymap('v', '<leader>p', '"+p', { noremap = true, silent = true
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
+-- harpoon keymaps
+
 vim.keymap.set("n", "<leader>tc", function()
   local cmp = require("cmp")
   local current = cmp.get_config().enabled
