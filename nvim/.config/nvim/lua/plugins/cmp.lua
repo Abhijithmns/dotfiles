@@ -2,12 +2,12 @@ return {
   "hrsh7th/nvim-cmp",
 
   dependencies = {
-    "hrsh7th/cmp-nvim-lsp",  -- LSP source
-    "hrsh7th/cmp-buffer",    -- buffer words
-    "hrsh7th/cmp-path",      -- filesystem paths
-    "saadparwaiz1/cmp_luasnip", -- snippets
-    "L3MON4D3/LuaSnip",      -- snippet engine
-    "rafamadriz/friendly-snippets", -- common snippets
+    "hrsh7th/cmp-nvim-lsp",
+    "hrsh7th/cmp-buffer",
+    "hrsh7th/cmp-path",
+    "saadparwaiz1/cmp_luasnip",
+    "L3MON4D3/LuaSnip",
+    "rafamadriz/friendly-snippets",
   },
 
   config = function()
@@ -15,6 +15,12 @@ return {
     local luasnip = require("luasnip")
 
     require("luasnip.loaders.from_vscode").lazy_load()
+
+    ------------------------------------------------------------------
+    -- REQUIRED: white border + transparent background
+    ------------------------------------------------------------------
+    vim.opt.termguicolors = true
+    vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#ffffff", bg = "NONE" })
 
     cmp.setup({
       snippet = {
@@ -25,9 +31,8 @@ return {
 
       mapping = cmp.mapping.preset.insert({
         ["<C-Space>"] = cmp.mapping.complete(),
-        ["<CR>"] = cmp.mapping.confirm({
-          select = true,
-        }),
+        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_next_item()
@@ -56,9 +61,16 @@ return {
         { name = "path" },
       },
 
+      ----------------------------------------------------------------
+      -- THIS is what actually draws the border
+      ----------------------------------------------------------------
       window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered({
+          border = "rounded",
+        }),
+        documentation = cmp.config.window.bordered({
+          border = "rounded",
+        }),
       },
     })
   end,
