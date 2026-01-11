@@ -1,0 +1,68 @@
+[global]
+monitor = 0
+follow = keyboard
+
+width = 300
+height = (0, 120)
+
+origin = top-right
+offset = (20, 20)
+
+font = Hack 10
+corner_radius = 6
+
+frame_width = 2
+frame_color = "#ffffff"
+
+background = "#00000000"
+foreground = "#ffffff"
+
+separator_height = 2
+separator_color = "#ffffff"
+
+padding = 10
+horizontal_padding = 10
+text_icon_padding = 10
+
+progress_bar = true
+progress_bar_height = 6
+progress_bar_frame_width = 1
+progress_bar_min_width = 200
+
+icon_position = left
+max_icon_size = 32
+
+idle_threshold = 120
+history_length = 20
+notification_limit = 3
+markup = full
+word_wrap = true
+show_indicators = yes
+
+mouse_left_click = close_current
+mouse_middle_click = do_action
+mouse_right_click = close_all
+
+timeout = 4
+transparency = 0
+ellipsize = middle
+
+
+[urgency_low]
+timeout = 3
+background = "#00000000"
+foreground = "#ffffff"
+frame_color = "#ffffff"
+
+[urgency_normal]
+timeout = 5
+background = "#00000000"
+foreground = "#ffffff"
+frame_color = "#ffffff"
+
+[urgency_critical]
+timeout = 0
+background = "#00000000"
+foreground = "#ffffff"
+frame_color = "#ff5555"
+
