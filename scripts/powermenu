@@ -1,0 +1,19 @@
+#!/bin/sh
+
+options="󰐥 Shutdown\n󰜉 Reboot\n󰤄 Suspend\n󰌾 Lock\n󰍃 Logout"
+
+choice=$(printf "$options" | rofi -dmenu -i -p "Power")
+
+case "$choice" in
+    *Shutdown) systemctl poweroff ;;
+    *Reboot) systemctl reboot ;;
+    *Suspend)
+        betterlockscreen -l
+        sleep 0.5
+        systemctl suspend
+        ;;
+    *Lock) betterlockscreen -l ;;
+    *Logout) pkill dwm ;;
+esac
+
+

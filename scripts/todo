@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+TODO="$HOME/.todo"
+[ -f "$TODO" ] || touch "$TODO"
+TODAY="$(date +%F)"
+
+rofi_menu() {
+    rofi -dmenu -i -p "$1" -theme-str '
+        window { width: 50%; }
+        listview { lines: 10; }
+        mainbox { padding: 14px; }
+    '
+}
+
+pick_task() {
+    nl -w2 -s'. ' "$TODO" | rofi_menu "$1"
+}
+
+toggle_task() {
+    sel="$(pick_task "Toggle TODO")"
+    [ -z "$sel" ] && return
+
+    num="$(printf "%s" "$sel" | sed 's/\..*//')"
+    line="$(sed -n "${num}p" "$TODO")"
+
+    case "$line" in
+        "[ ]"*)
+            sed -i "${num}s/^\[ \]/[x]/" "$TODO"
+            ;;
+        "[x]"*)
+            sed -i "${num}s/^\[x\]/[ ]/" "$TODO"
+            ;;
+    esac
+}
+
+while true; do
+    action="$(printf "  Add\n󰄉  View\n󰄬  Done\n  Remove\n" | rofi_menu "TODO")"
+    [ -z "$action" ] && exit
+
+    case "$action" in
+        *Add*)
+            task="$(rofi_menu "New task")"
+            [ -n "$task" ] && echo "[ ] $TODAY | $task" >> "$TODO"
+            ;;
+        *View*)
+            pick_task "Your TODOs" >/dev/null
+            ;;
+        *Toggle*)
+            toggle_task
+            ;;
+        *Remove*)
+            sel="$(pick_task "Remove task")"
+            [ -z "$sel" ] && continue
+            num="$(printf "%s" "$sel" | sed 's/\..*//')"
+            sed -i "${num}d" "$TODO"
+            ;;
+    esac
+done
+
+
