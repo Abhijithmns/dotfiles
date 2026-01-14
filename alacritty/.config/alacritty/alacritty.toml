@@ -8,3 +8,19 @@ opacity = 0.8
 [font]
 size = 9
 
+[font.normal]
+family = "Hack"
+style = "Regular"
+
+[font.bold]
+family = "Hack"
+style = "Bold"
+
+[font.italic]
+family = "Hack"
+style = "Italic"
+
+[font.bold_italic]
+family = "Hack"
+style = "Bold Italic"
+
