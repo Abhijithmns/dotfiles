@@ -14,7 +14,7 @@ corner_radius = 6
 frame_width = 2
 frame_color = "#ffffff"
 
-background = "#00000000"
+background = "#ffffff"
 foreground = "#ffffff"
 
 separator_height = 2
