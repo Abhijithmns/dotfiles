@@ -12,13 +12,13 @@ font = Hack 10
 corner_radius = 6
 
 frame_width = 2
-frame_color = "#ffffff"
+frame_color = "$color4"
 
-background = "#ffffff"
-foreground = "#ffffff"
+background = "$color0"
+foreground = "$color7"
 
 separator_height = 2
-separator_color = "#ffffff"
+separator_color = "$color4"
 
 padding = 10
 horizontal_padding = 10
@@ -50,19 +50,21 @@ ellipsize = middle
 
 [urgency_low]
 timeout = 3
-background = "#00000000"
-foreground = "#ffffff"
-frame_color = "#ffffff"
+background = "$color0"
+foreground = "$color7"
+frame_color = "$color4"
+
 
 [urgency_normal]
 timeout = 5
-background = "#00000000"
-foreground = "#ffffff"
-frame_color = "#ffffff"
+background = "$color0"
+foreground = "$color7"
+frame_color = "$color4"
+
 
 [urgency_critical]
 timeout = 0
-background = "#00000000"
-foreground = "#ffffff"
-frame_color = "#ff5555"
+background = "$color1"
+foreground = "$color15"
+frame_color = "$color1"
 
