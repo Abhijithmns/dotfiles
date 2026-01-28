@@ -27,3 +27,6 @@ vim.keymap.set("n", "<leader>tc", function()
   print("CMP enabled:", not current)
 end)
 
+vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostics" })
+
+
