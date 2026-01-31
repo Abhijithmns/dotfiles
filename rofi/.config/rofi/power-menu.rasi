@@ -1,0 +1,33 @@
+@theme "default"
+
+configuration {
+  location: 3;   /* top-right */
+}
+
+window {
+  width: 18%;
+  margin-top: 50px;   /* pushes it down from top */
+
+  background-color: rgba(0, 0, 0, 0.85);
+  border: 2px;
+  border-color: #ffffff;
+}
+
+mainbox {
+  background-color: transparent;
+}
+
+listview {
+  lines: 4;
+  background-color: transparent;
+}
+
+element {
+  padding: 8px;
+  background-color: transparent;
+}
+
+element selected {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+

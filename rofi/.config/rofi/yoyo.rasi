@@ -1,0 +1,29 @@
+* {
+    background: @background;
+    foreground: @foreground;
+    borderclr: @color4;
+    accentclr: @color6;
+}
+
+window {
+    background-color: @background;
+    border: 2px;
+    border-color: @borderclr;
+    border-radius: 14px;
+    padding: 20px;
+    width: 500px;
+}
+
+inputbar {
+    background-color: @color0;
+    border: 1px;
+    border-color: @accentclr;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+element selected.normal {
+    background-color: @color2;
+    text-color: @background;
+}
+

@@ -1,7 +1,10 @@
 configuration {
+    modi: "drun,run,window";
     show-icons: true;
+    icon-theme: "Papirus";
+    font: "JetBrainsMono Nerd Font 12";
+    drun-display-format: "{icon}  {name}";
 }
 
 @theme "~/.cache/wal/colors-rofi-dark.rasi"
-
 
