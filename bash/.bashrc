@@ -155,3 +155,7 @@ export PATH="$HOME/bin:$PATH"
 alias vi='nvim'
 [ -f "$HOME/.cache/wal/sequences" ] && cat "$HOME/.cache/wal/sequences"
 
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
