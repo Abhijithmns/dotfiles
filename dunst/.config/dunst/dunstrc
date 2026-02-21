@@ -10,9 +10,9 @@ origin = top-right
 offset = (35, 35)
 indicate_hidden = yes
 notification_limit = 5
-gap_size = 12
-padding = 12
-horizontal_padding = 20
+gap_size = 4
+padding = 8
+horizontal_padding = 10
 frame_width = 1
 sort = no
 
@@ -20,30 +20,26 @@ sort = no
 progress_bar_frame_width = 0
 progress_bar_corner_radius = 0
 
-# Colors
+# Colors — base values overridden at runtime by launchdunst.sh via CLI flags
 foreground = "#cdd1dc"
-frame_color = "#2d303c"
-highlight = "#2274d5, #82aad9"
+frame_color = "#ffffff"
+highlight = "#ffffff, #cccccc"
 
 # Text
-font = Noto Sans CJK JP 10
+font = Monospace 10
 markup = full
-format = "<small>%a</small>\n<b>%s</b>\n%b"
+format = "<b>%s</b>\n%b"
 alignment = left
 vertical_alignment = center
 show_age_threshold = -1
 hide_duplicate_count = false
 
 # Icon
-icon_position = left
-min_icon_size = 54
-max_icon_size = 80
-icon_path = /usr/share/icons/Arc/status/96:/usr/share/icons/Arc/status/symbolic
-icon_corner_radius = 4
+icon_position = off
 
 # Misc/Advanced
 dmenu = wofi --show drun --prompt 'Open with'
-corner_radius = 10
+corner_radius = 0
 
 # Mouse
 mouse_left_click = close_current
@@ -51,16 +47,16 @@ mouse_middle_click = do_action, close_current
 mouse_right_click = close_all
 
 [urgency_low]
-background = "#383c4af0"
+background = "#1a1b26f0"
 timeout = 3
 
 [urgency_normal]
-background = "#383c4af0"
+background = "#1a1b26f0"
 timeout = 8
 
 [urgency_critical]
-background = "#9b4d4bf0"
-frame_color = "#ab6d6b"
+background = "#1a1b26f0"
+frame_color = "#ffffff"
 highlight = "#eb4d4b"
 timeout = 0
 
@@ -71,3 +67,4 @@ fullscreen = delay
 [fullscreen_show_critical]
 msg_urgency = critical
 fullscreen = show
+

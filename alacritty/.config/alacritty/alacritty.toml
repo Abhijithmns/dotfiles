@@ -1,6 +1,6 @@
 [general]
 import = [
-  "~/.cache/wal/colors-alacritty.toml"
+  "/home/abhijith/.cache/wal/colors-alacritty.toml"
 ]
 [window]
 opacity = 0.8
