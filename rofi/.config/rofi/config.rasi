@@ -58,7 +58,7 @@ window {
 	border-radius: 2px;
 	border-color: #ffffff;
 	cursor: "default";
-	background-color: rgba(10,10,10,0.6);
+	background-color: rgba(10,10,10,0.7);
 }
 
 mainbox {
