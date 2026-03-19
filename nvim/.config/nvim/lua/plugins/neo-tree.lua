@@ -35,6 +35,6 @@ return {
       highlight NeoTreeNormalNC guibg=NONE ctermbg=NONE
     ]])
 
-    vim.keymap.set("n", "<leader>n", ":Neotree toggle left<CR>", {})
+    vim.keymap.set("n", "<leader>q", ":Neotree toggle left<CR>", {})
   end,
 }
