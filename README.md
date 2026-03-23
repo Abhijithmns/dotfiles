@@ -5,14 +5,8 @@ This is a collection of my configuration files that:
 
 ## Screenshots
 
-
-![wallpaper](~/Pictures/Screenshots/p1.png)
-*wallpaper — study of a mountain stream (oil sketch)*
-
-![editing](~/Pictures/Screenshots/p2.png)
-*neovim · ncspot · cava*
-
-![system](~/Pictures/Screenshots/p3.png)
-*htop · system info*
+<img src="~/Pictures/Screenshots/p1.png" width="100%"/>
+<img src="~/Pictures/Screenshots/p2.png" width="100%"/>
+<img src="~/Pictures/Screenshots/p3.png" width="100%"/>
 
 Managed using **GNU Stow**.
