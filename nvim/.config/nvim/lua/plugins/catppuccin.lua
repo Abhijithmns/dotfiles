@@ -9,6 +9,7 @@ return {
   end
 }
 ]]
+
 return
 {
   'projekt0n/github-nvim-theme',
@@ -25,9 +26,10 @@ return
     vim.cmd('colorscheme github_dark_default')
   end,
 }
---[[
 
-return{
+
+--[[ 
+return {
     "ellisonleao/gruvbox.nvim", priority = 1000 , config = true, opts = ...,
     config = function ()
         -- Default options:
@@ -58,10 +60,10 @@ return{
 
     end
 
-}
-]]
---[[
-return {
+} ]]
+
+
+--[[ return {
     "rebelot/kanagawa.nvim",
     config = function ()
                 -- Default options:
