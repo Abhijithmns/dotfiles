@@ -1,7 +1,23 @@
 return {
-  --[[ "startup-nvim/startup.nvim",
-  dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim", "nvim-telescope/telescope-file-browser.nvim" },
-  config = function()
-    require "startup".setup()
-  end ]]
+  "folke/snacks.nvim",
+  priority = 1000,
+  lazy = false,
+  dependencies = { "amansingh-afk/milli.nvim" },
+  opts = function()
+    local splash = require("milli").load({ splash = "fire" })
+    return {
+      dashboard = {
+        enabled = true,
+        sections = {
+          { section = "header", text = table.concat(splash.frames[1], "\n") },
+          { section = "keys",   gap = 1, padding = 1 },
+          { section = "startup" },
+        },
+      },
+    }
+  end,
+  config = function(_, opts)
+    require("snacks").setup(opts)
+    require("milli").snacks({ splash = "fire", loop = true })
+  end,
 }
