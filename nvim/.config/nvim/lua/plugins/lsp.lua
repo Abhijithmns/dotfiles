@@ -14,6 +14,7 @@ return {
         "vtsls",
         "pyright",
         "lua_ls",
+        "rust_analyzer",
       },
     },
   },
@@ -70,7 +71,20 @@ return {
           },
         },
       }
+
+      -- Rust
+      lsp.config.rust_analyzer = {
+        cmd = { "rust-analyzer" },
+        filetypes = { "rust" },
+        settings = {
+          ["rust-analyzer"] = {
+            cargo = {
+              allFeatures = true,
+            },
+            checkOnSave = true,
+          },
+        },
+      }
     end,
   },
 }
-

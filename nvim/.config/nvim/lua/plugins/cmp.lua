@@ -16,9 +16,6 @@ return {
 
     require("luasnip.loaders.from_vscode").lazy_load()
 
-    ------------------------------------------------------------------
-    -- REQUIRED: white border + transparent background
-    ------------------------------------------------------------------
     vim.opt.termguicolors = true
     vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#ffffff", bg = "NONE" })
 
@@ -61,15 +58,12 @@ return {
         { name = "path" },
       },
 
-      ----------------------------------------------------------------
-      -- THIS is what actually draws the border
-      ----------------------------------------------------------------
       window = {
         completion = cmp.config.window.bordered({
-          border = "rounded",
+          border = "single",
         }),
         documentation = cmp.config.window.bordered({
-          border = "rounded",
+          border = "single",
         }),
       },
     })
