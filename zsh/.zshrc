@@ -71,6 +71,7 @@ alias vi='nvim'
 alias chafa='chafa -f kitty'
 alias ranger='TERM=kitty ranger'
 alias show='bash ~/suckless/st/icat-mini.sh'
+alias spotify_player='TERM=xterm-kitty spotify_player'
 
 
 eval "$(fzf --zsh)"
@@ -78,3 +79,13 @@ eval "$(fzf --zsh)"
 
 eval "$(starship init zsh)"
 
+. "$HOME/.cargo/env"
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# opencode
+export PATH=/home/abhijith/.opencode/bin:$PATH
+
+# binds
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
