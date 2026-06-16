@@ -86,6 +86,11 @@ export PATH="$HOME/.local/bin:$PATH"
 # opencode
 export PATH=/home/abhijith/.opencode/bin:$PATH
 
+# Go Environment Variables
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
+
 # binds
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
