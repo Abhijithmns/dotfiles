@@ -1,90 +1,102 @@
 return {
-  {
-    "williamboman/mason.nvim",
-    opts = {},
-  },
+	{
+		"mason-org/mason.nvim",
+		opts = {
+			ui = {
+				border = "rounded",
+			},
+		},
+	},
 
-  {
-    "williamboman/mason-lspconfig.nvim",
-    opts = {
-      ensure_installed = {
-        "clangd",
-        "html",
-        "cssls",
-        "vtsls",
-        "pyright",
-        "lua_ls",
-        "rust_analyzer",
-      },
-    },
-  },
+	{
+		"mason-org/mason-lspconfig.nvim",
+		opts = {
+			ensure_installed = {
+				"clangd",
+				"html",
+				"cssls",
+				"vtsls",
+				"pyright",
+				"lua_ls",
+				"rust_analyzer",
+				"gopls",
+				"bashls",
+				"marksman",
+			},
+		},
+	},
 
-  {
-    "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile" },
-    config = function()
-      local lsp = vim.lsp
+	{
+		"neovim/nvim-lspconfig",
+		event = { "BufReadPre", "BufNewFile" },
 
-      -- C / C++
-      lsp.config.clangd = {
-        cmd = { "clangd" },
-        filetypes = { "c", "cpp" },
-      }
+		config = function()
+			-- Lua
+			vim.lsp.config.lua_ls = {
+				settings = {
+					Lua = {
+						diagnostics = {
+							globals = { "vim" },
+						},
+						workspace = {
+							checkThirdParty = false,
+						},
+					},
+				},
+			}
 
-      -- HTML
-      lsp.config.html = {
-        cmd = { "vscode-html-language-server", "--stdio" },
-        filetypes = { "html" },
-      }
+			-- Rust
+			vim.lsp.config.rust_analyzer = {
+				settings = {
+					["rust-analyzer"] = {
+						cargo = {
+							allFeatures = true,
+						},
+					},
+				},
+			}
 
-      -- CSS
-      lsp.config.cssls = {
-        cmd = { "vscode-css-language-server", "--stdio" },
-        filetypes = { "css", "scss", "less" },
-      }
+			-- Enable servers
+			local servers = {
+				"clangd",
+				"html",
+				"cssls",
+				"vtsls",
+				"pyright",
+				"lua_ls",
+				"rust_analyzer",
+				"gopls",
+				"bashls",
+				"marksman",
+			}
 
-      -- JS / TS
-      lsp.config.vtsls = {
-        cmd = { "vtsls", "--stdio" },
-        filetypes = {
-          "javascript",
-          "javascriptreact",
-          "typescript",
-          "typescriptreact",
-        },
-      }
+			for _, server in ipairs(servers) do
+				vim.lsp.enable(server)
+			end
 
-      -- Python
-      lsp.config.pyright = {
-        cmd = { "pyright-langserver", "--stdio" },
-        filetypes = { "python" },
-      }
+			-- Keymaps
+			vim.keymap.set("n", "K", function()
+				vim.lsp.buf.hover({ border = "rounded" })
+			end)
 
-      -- Lua
-      lsp.config.lua_ls = {
-        cmd = { "lua-language-server" },
-        filetypes = { "lua" },
-        settings = {
-          Lua = {
-            diagnostics = { globals = { "vim" } },
-            workspace = { checkThirdParty = false },
-          },
-        },
-      }
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition)
+			vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
+			vim.keymap.set("n", "gi", vim.lsp.buf.implementation)
+			vim.keymap.set("n", "gr", vim.lsp.buf.references)
 
-      -- Rust
-      lsp.config.rust_analyzer = {
-        cmd = { "rust-analyzer" },
-        filetypes = { "rust" },
-        settings = {
-          ["rust-analyzer"] = {
-            cargo = {
-              allFeatures = true,
-            },
-            checkOnSave = true,
-          },
-        },
-      }
-    end,
-  },
+			vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
+			vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action)
+
+			-- Diagnostics
+			vim.diagnostic.config({
+				virtual_text = true,
+				underline = true,
+				update_in_insert = false,
+				severity_sort = true,
+				float = {
+					border = "rounded",
+				},
+			})
+		end,
+	},
 }
