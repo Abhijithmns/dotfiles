@@ -68,10 +68,16 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 alias ls='lsd'
 alias vi='nvim'
+alias mkdir='mkdir -v'
+alias rm ='rm -v'
 alias chafa='chafa -f kitty'
 alias ranger='TERM=kitty ranger'
 alias show='bash ~/suckless/st/icat-mini.sh'
 alias spotify_player='TERM=xterm-kitty spotify_player'
+ # git
+alias gc = 'git commit --verbose'
+alias git s = 'git status'
+alias git log = 'git log --oneline --graph --decorate --all'
 
 
 eval "$(fzf --zsh)"
@@ -94,3 +100,11 @@ export PATH=$PATH:$GOPATH/bin
 # binds
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/abhijith/.local/bin:$PATH"
