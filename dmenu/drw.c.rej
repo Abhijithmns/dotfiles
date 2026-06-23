@@ -1,0 +1,27 @@
+--- drw.c
++++ drw.c
+@@ -4,12 +4,24 @@
+ #include <string.h>
+ #include <X11/Xlib.h>
+ #include <X11/Xft/Xft.h>
++#include <spng.h>
+ 
+ #include "drw.h"
+ #include "util.h"
+ 
+ #define UTF_INVALID 0xFFFD
+ 
++struct image_item {
++	const char *path;
++	int width;
++	int height;
++	char *buf;
++	Pixmap pixmap;
++	struct image_item *next;
++};
++
++static struct image_item *images = NULL;
++
+ static int
+ utf8decode(const char *s_in, long *u, int *err)
+ {

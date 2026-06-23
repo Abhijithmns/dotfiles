@@ -1,0 +1,35 @@
+--- dmenu.c
++++ dmenu.c
+@@ -668,7 +701,10 @@ setup(void)
+ 	/* calculate menu geometry */
+ 	bh = drw->fonts->h + 2;
+ 	lines = MAX(lines, 0);
+-	mh = (lines + 1) * bh;
++	/* default values for image_size */
++	if (image_size < 0)
++		image_size = (lines > 0) ? 2 * bh : 8 * bh;
++	mh = bh + ((lines > 0) ? MAX(lines * bh, image_size) : 0);
+ #ifdef XINERAMA
+ 	i = 0;
+ 	if (parentwin == root && (info = XineramaQueryScreens(dpy, &n))) {
+@@ -748,7 +784,8 @@ static void
+ usage(void)
+ {
+ 	die("usage: dmenu [-bfiv] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+-	    "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]");
++	    "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n"
++	    "             [-ip image_prefix] [-is image_size]");
+ }
+ 
+ int
+@@ -790,6 +827,10 @@ main(int argc, char *argv[])
+ 			colors[SchemeSel][ColFg] = argv[++i];
+ 		else if (!strcmp(argv[i], "-w"))   /* embedding window id */
+ 			embed = argv[++i];
++		else if (!strcmp(argv[i], "-ip"))  /* image prefix */
++			image_prefix = argv[++i];
++		else if (!strcmp(argv[i], "-is"))  /* max. image preview size (height or width) */
++			image_size = atoi(argv[++i]);
+ 		else
+ 			usage();
+ 

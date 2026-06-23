@@ -1,0 +1,448 @@
+From 743d86e56e0c1eb4255a08fe338db03752cc99e7 Mon Sep 17 00:00:00 2001
+From: Max Schillinger <maxschillinger@web.de>
+Date: Fri, 1 Nov 2024 08:58:49 +0100
+Subject: [PATCH] Support PNG images using libspng
+
+---
+ config.mk |   2 +-
+ dmenu.c   |  62 +++++++++++++++---
+ drw.c     | 189 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ drw.h     |   5 ++
+ util.c    |   6 ++
+ util.h    |   1 +
+ 6 files changed, 254 insertions(+), 11 deletions(-)
+
+diff --git a/config.mk b/config.mk
+index 137f7c8..3217090 100644
+--- a/config.mk
++++ b/config.mk
+@@ -21,7 +21,7 @@ FREETYPEINC = /usr/include/freetype2
+ 
+ # includes and libs
+ INCS = -I$(X11INC) -I$(FREETYPEINC)
+-LIBS = -L$(X11LIB) -lX11 $(XINERAMALIBS) $(FREETYPELIBS)
++LIBS = -L$(X11LIB) -lX11 $(XINERAMALIBS) $(FREETYPELIBS) -lspng
+ 
+ # flags
+ CPPFLAGS = -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE=700 -D_POSIX_C_SOURCE=200809L -DVERSION=\"$(VERSION)\" $(XINERAMAFLAGS)
+diff --git a/dmenu.c b/dmenu.c
+index 804da64..b0e4109 100644
+--- a/dmenu.c
++++ b/dmenu.c
+@@ -38,11 +38,14 @@ static char *embed;
+ static int bh, mw, mh;
+ static int inputw = 0, promptw;
+ static int lrpad; /* sum of left and right padding */
++static int tbpad; /* sum of top and bottom padding for images */
+ static size_t cursor;
+ static struct item *items = NULL;
+ static struct item *matches, *matchend;
+ static struct item *prev, *curr, *next, *sel;
+ static int mon = -1, screen;
++static char *image_prefix = "PNG_IMAGE:";
++static int image_size = -1; /* in pixels */
+ 
+ static Atom clip, utf8;
+ static Display *dpy;
+@@ -58,12 +61,26 @@ static int (*fstrncmp)(const char *, const char *, size_t) = strncmp;
+ static char *(*fstrstr)(const char *, const char *) = strstr;
+ 
+ static unsigned int
+-textw_clamp(const char *str, unsigned int n)
++textw_clamp(const char *str, unsigned int n, unsigned int maxw, unsigned int maxh)
+ {
+-	unsigned int w = drw_fontset_getwidth_clamp(drw, str, n) + lrpad;
++	unsigned int w;
++	if (startswith(image_prefix, str) &&
++			(w = drw_getimagewidth_clamp(drw, str + strlen(image_prefix), maxw, maxh)))
++		return MIN(w + lrpad, n);
++	w = drw_fontset_getwidth_clamp(drw, str, n) + lrpad;
+ 	return MIN(w, n);
+ }
+ 
++static unsigned int
++texth_clamp(const char *str, unsigned int n, unsigned int maxw, unsigned int maxh)
++{
++	unsigned int h;
++	if (startswith(image_prefix, str) &&
++			(h = drw_getimageheight_clamp(drw, str + strlen(image_prefix), maxw, maxh)))
++		return MIN(h + tbpad, n);
++	return MIN(bh, n);
++}
++
+ static void
+ appenditem(struct item *item, struct item **list, struct item **last)
+ {
+@@ -83,15 +100,19 @@ calcoffsets(void)
+ 	int i, n;
+ 
+ 	if (lines > 0)
+-		n = lines * bh;
++		n = mh - bh;
+ 	else
+ 		n = mw - (promptw + inputw + TEXTW("<") + TEXTW(">"));
+ 	/* calculate which items will begin the next page and previous page */
+ 	for (i = 0, next = curr; next; next = next->right)
+-		if ((i += (lines > 0) ? bh : textw_clamp(next->text, n)) > n)
++		if ((i += (lines > 0)
++					? texth_clamp(next->text, n, mw - lrpad, image_size)
++					: textw_clamp(next->text, n, image_size, bh)) > n)
+ 			break;
+ 	for (i = 0, prev = curr; prev && prev->left; prev = prev->left)
+-		if ((i += (lines > 0) ? bh : textw_clamp(prev->left->text, n)) > n)
++		if ((i += (lines > 0)
++					? texth_clamp(prev->left->text, n, mw - lrpad, image_size)
++					: textw_clamp(prev->left->text, n, image_size, bh)) > n)
+ 			break;
+ }
+ 
+@@ -139,7 +160,18 @@ drawitem(struct item *item, int x, int y, int w)
+ 	else
+ 		drw_setscheme(drw, scheme[SchemeNorm]);
+ 
+-	return drw_text(drw, x, y, w, bh, lrpad / 2, item->text, 0);
++	int vertical = lines > 0;
++	if (startswith(image_prefix, item->text)) {
++		char *path = item->text + strlen(image_prefix);
++		unsigned int image_width = vertical ? w - lrpad : image_size;
++		unsigned int image_height = vertical ? image_size : bh;
++		drw_image(drw, &x, &y, &image_width, &image_height,
++		          lrpad, vertical ? tbpad : 0, path, vertical);
++		if (image_width && image_height)
++			return vertical ? y : x;
++	}
++	int nextx = drw_text(drw, x, y, w, bh, lrpad / 2, item->text, 0);
++	return vertical ? y + bh : nextx;
+ }
+ 
+ static void
+@@ -169,8 +201,9 @@ drawmenu(void)
+ 
+ 	if (lines > 0) {
+ 		/* draw vertical list */
++		y = bh;
+ 		for (item = curr; item != next; item = item->right)
+-			drawitem(item, x, y += bh, mw - x);
++			y = drawitem(item, x, y, mw - x);
+ 	} else if (matches) {
+ 		/* draw horizontal list */
+ 		x += inputw;
+@@ -181,7 +214,7 @@ drawmenu(void)
+ 		}
+ 		x += w;
+ 		for (item = curr; item != next; item = item->right)
+-			x = drawitem(item, x, 0, textw_clamp(item->text, mw - x - TEXTW(">")));
++			x = drawitem(item, x, 0, textw_clamp(item->text, mw - x - TEXTW(">"), image_size, bh));
+ 		if (next) {
+ 			w = TEXTW(">");
+ 			drw_setscheme(drw, scheme[SchemeNorm]);
+@@ -635,7 +668,10 @@ setup(void)
+ 	/* calculate menu geometry */
+ 	bh = drw->fonts->h + 2;
+ 	lines = MAX(lines, 0);
+-	mh = (lines + 1) * bh;
++	/* default values for image_size */
++	if (image_size < 0)
++		image_size = (lines > 0) ? 2 * bh : 8 * bh;
++	mh = bh + ((lines > 0) ? MAX(lines * bh, image_size) : 0);
+ #ifdef XINERAMA
+ 	i = 0;
+ 	if (parentwin == root && (info = XineramaQueryScreens(dpy, &n))) {
+@@ -715,7 +751,8 @@ static void
+ usage(void)
+ {
+ 	die("usage: dmenu [-bfiv] [-l lines] [-p prompt] [-fn font] [-m monitor]\n"
+-	    "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]");
++	    "             [-nb color] [-nf color] [-sb color] [-sf color] [-w windowid]\n"
++	    "             [-ip image_prefix] [-is image_size]");
+ }
+ 
+ int
+@@ -757,6 +794,10 @@ main(int argc, char *argv[])
+ 			colors[SchemeSel][ColFg] = argv[++i];
+ 		else if (!strcmp(argv[i], "-w"))   /* embedding window id */
+ 			embed = argv[++i];
++		else if (!strcmp(argv[i], "-ip"))  /* image prefix */
++			image_prefix = argv[++i];
++		else if (!strcmp(argv[i], "-is"))  /* max. image preview size (height or width) */
++			image_size = atoi(argv[++i]);
+ 		else
+ 			usage();
+ 
+@@ -775,6 +816,7 @@ main(int argc, char *argv[])
+ 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
+ 		die("no fonts could be loaded.");
+ 	lrpad = drw->fonts->h;
++	tbpad = lrpad / 2;
+ 
+ #ifdef __OpenBSD__
+ 	if (pledge("stdio rpath", NULL) == -1)
+diff --git a/drw.c b/drw.c
+index c41e6af..20c2125 100644
+--- a/drw.c
++++ b/drw.c
+@@ -4,12 +4,24 @@
+ #include <string.h>
+ #include <X11/Xlib.h>
+ #include <X11/Xft/Xft.h>
++#include <spng.h>
+ 
+ #include "drw.h"
+ #include "util.h"
+ 
+ #define UTF_INVALID 0xFFFD
+ 
++struct image_item {
++	const char *path;
++	int width;
++	int height;
++	char *buf;
++	Pixmap pixmap;
++	struct image_item *next;
++};
++
++static struct image_item *images = NULL;
++
+ static int
+ utf8decode(const char *s_in, long *u, int *err)
+ {
+@@ -382,6 +394,163 @@ no_match:
+ 	return x + (render ? w : 0);
+ }
+ 
++static struct image_item *
++load_image(Drw *drw, unsigned int maxw, unsigned int maxh, const char *path)
++{
++	FILE *png;
++	spng_ctx *ctx = NULL;
++	int ret = 0;
++	struct spng_ihdr ihdr;
++	struct spng_plte plte = {0};
++	struct spng_row_info row_info = {0};
++	char *spng_buf;
++	int fmt = SPNG_FMT_RGBA8;
++	int crop_width;
++	int crop_height;
++
++	struct image_item *image = ecalloc(1, sizeof(struct image_item));
++	image->path = path;
++	image->next = images;
++	images = image;
++
++	png = fopen(path, "rb");
++	if (png == NULL) {
++		fprintf(stderr, "error opening input file %s\n", path);
++		return NULL;
++	}
++
++	/* Create a context */
++	ctx = spng_ctx_new(0);
++	if (ctx == NULL) {
++		fprintf(stderr, "%s: spng_ctx_new() failed\n", path);
++		return NULL;
++	}
++
++	/* Ignore and don't calculate chunk CRC's */
++	spng_set_crc_action(ctx, SPNG_CRC_USE, SPNG_CRC_USE);
++
++	/* Set memory usage limits for storing standard and unknown chunks,
++	   this is important when reading untrusted files! */
++	size_t limit = 1024 * 1024 * 64;
++	spng_set_chunk_limits(ctx, limit, limit);
++
++	spng_set_png_file(ctx, png);
++
++	ret = spng_get_ihdr(ctx, &ihdr);
++	if (ret) {
++		fprintf(stderr, "%s: spng_get_ihdr() error: %s\n", path, spng_strerror(ret));
++		return NULL;
++	}
++
++	ret = spng_get_plte(ctx, &plte);
++	if (ret && ret != SPNG_ECHUNKAVAIL) {
++		fprintf(stderr, "%s: spng_get_plte() error: %s\n", path, spng_strerror(ret));
++		return NULL;
++	}
++
++	size_t image_size, bytes_per_row; /* size in bytes, not in pixels */
++
++	ret = spng_decoded_image_size(ctx, fmt, &image_size);
++	if (ret)
++		return NULL;
++
++	spng_buf = malloc(image_size);
++	if (!spng_buf)
++		return NULL;
++
++	ret = spng_decode_image(ctx, NULL, 0, fmt, SPNG_DECODE_PROGRESSIVE);
++	if (ret) {
++		fprintf(stderr, "%s: progressive spng_decode_image() error: %s\n",
++		        path, spng_strerror(ret));
++		return NULL;
++	}
++
++	/* ihdr.height will always be non-zero if spng_get_ihdr() succeeds */
++	bytes_per_row = image_size / ihdr.height;
++	crop_width = MIN(ihdr.width, maxw);
++	crop_height = MIN(ihdr.height, maxh);
++
++	do {
++		ret = spng_get_row_info(ctx, &row_info);
++		if (ret)
++			break;
++		ret = spng_decode_row(ctx, spng_buf + row_info.row_num * bytes_per_row, bytes_per_row);
++	} while (!ret && row_info.row_num < crop_height);
++
++	if (ret != SPNG_EOI && row_info.row_num < crop_height)
++		fprintf(stderr, "%s: progressive decode error: %s\n", path, spng_strerror(ret));
++
++	image->buf = calloc(ihdr.width * crop_height * 4, sizeof(char));
++	for (int i = 0; i < ihdr.width * crop_height; i++) {
++		/* RGBA to BGRA */
++		image->buf[i*4+2] = spng_buf[i*4+0];
++		image->buf[i*4+1] = spng_buf[i*4+1];
++		image->buf[i*4+0] = spng_buf[i*4+2];
++		image->buf[i*4+3] = spng_buf[i*4+3];
++	}
++	image->width = crop_width;
++	image->height = crop_height;
++
++	XImage *img = XCreateImage(drw->dpy, CopyFromParent, DefaultDepth(drw->dpy, drw->screen),
++	                           ZPixmap, 0, image->buf, ihdr.width, crop_height, 32, 0);
++	image->pixmap = XCreatePixmap(drw->dpy, drw->root, crop_width, crop_height, 24);
++	XPutImage(drw->dpy, image->pixmap, drw->gc, img, 0, 0, 0, 0, crop_width, crop_height);
++	spng_ctx_free(ctx);
++	fclose(png);
++	return image;
++}
++
++void
++drw_image(Drw *drw, int *x, int *y, unsigned int *w, unsigned int *h,
++          unsigned int lrpad, unsigned int tbpad, const char *path, int vertical)
++{
++	/* *x and *y refer to box position including padding,
++	 * *w and *h are the maximum image width and height without padding */
++	struct image_item *image = NULL;
++	int render = *x || *y;
++	int crop_width, crop_height;
++
++	// find path in images
++	for (struct image_item *item = images; item != NULL; item = item->next) {
++		if (!strcmp(item->path, path)) {
++			image = item;
++			if (!image->buf)
++				goto file_error;
++			break;
++		}
++	}
++
++	if (!image && !(image = load_image(drw, *w, *h, path)))
++		goto file_error;
++
++	if (!render) {
++		*w = image->width;
++		*h = image->height;
++		return;
++	}
++
++	crop_width = MIN(image->width, *w);
++	crop_height = MIN(image->height, *h);
++	if (vertical)
++		*h = crop_height;
++	else
++		*w = crop_width;
++
++	XSetForeground(drw->dpy, drw->gc, drw->scheme[ColBg].pixel);
++	XFillRectangle(drw->dpy, drw->drawable, drw->gc, *x, *y, *w + lrpad, *h + tbpad);
++	XCopyArea(drw->dpy, image->pixmap, drw->drawable, drw->gc, 0, 0,
++	          crop_width, crop_height, *x + lrpad/2, *y + tbpad/2);
++
++	if (vertical)
++		*y += *h + tbpad;
++	else
++		*x += *w + lrpad;
++	return;
++
++file_error:
++	*w = *h = 0;
++}
++
+ void
+ drw_map(Drw *drw, Window win, int x, int y, unsigned int w, unsigned int h)
+ {
+@@ -424,6 +593,26 @@ drw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned int *w,
+ 		*h = font->h;
+ }
+ 
++unsigned int
++drw_getimagewidth_clamp(Drw *drw, const char *path, unsigned int maxw, unsigned int maxh)
++{
++	int x = 0, y = 0;
++	unsigned int w = maxw, h = maxh;
++	if (drw && path && maxw && maxh)
++		drw_image(drw, &x, &y, &w, &h, 0, 0, path, 0);
++	return MIN(maxw, w);
++}
++
++unsigned int
++drw_getimageheight_clamp(Drw *drw, const char *path, unsigned int maxw, unsigned int maxh)
++{
++	int x = 0, y = 0;
++	unsigned int w = maxw, h = maxh;
++	if (drw && path && maxw && maxh)
++		drw_image(drw, &x, &y, &w, &h, 0, 0, path, 1);
++	return MIN(maxh, h);
++}
++
+ Cur *
+ drw_cur_create(Drw *drw, int shape)
+ {
+diff --git a/drw.h b/drw.h
+index fd7631b..330722d 100644
+--- a/drw.h
++++ b/drw.h
+@@ -38,6 +38,10 @@ unsigned int drw_fontset_getwidth(Drw *drw, const char *text);
+ unsigned int drw_fontset_getwidth_clamp(Drw *drw, const char *text, unsigned int n);
+ void drw_font_getexts(Fnt *font, const char *text, unsigned int len, unsigned int *w, unsigned int *h);
+ 
++/* Image abstraction */
++unsigned int drw_getimagewidth_clamp(Drw *drw, const char *path, unsigned int maxw, unsigned int maxh);
++unsigned int drw_getimageheight_clamp(Drw *drw, const char *path, unsigned int maxw, unsigned int maxh);
++
+ /* Colorscheme abstraction */
+ void drw_clr_create(Drw *drw, Clr *dest, const char *clrname);
+ Clr *drw_scm_create(Drw *drw, const char *clrnames[], size_t clrcount);
+@@ -53,6 +57,7 @@ void drw_setscheme(Drw *drw, Clr *scm);
+ /* Drawing functions */
+ void drw_rect(Drw *drw, int x, int y, unsigned int w, unsigned int h, int filled, int invert);
+ int drw_text(Drw *drw, int x, int y, unsigned int w, unsigned int h, unsigned int lpad, const char *text, int invert);
++void drw_image(Drw *drw, int *x, int *y, unsigned int *w, unsigned int *h, unsigned int lrpad, unsigned int tbpad, const char *path, int vertical);
+ 
+ /* Map functions */
+ void drw_map(Drw *drw, Window win, int x, int y, unsigned int w, unsigned int h);
+diff --git a/util.c b/util.c
+index 8e26a51..975735b 100644
+--- a/util.c
++++ b/util.c
+@@ -35,3 +35,9 @@ ecalloc(size_t nmemb, size_t size)
+ 		die("calloc:");
+ 	return p;
+ }
++
++int
++startswith(const char* prefix, const char* str)
++{
++	return strncmp(prefix, str, strlen(prefix)) == 0;
++}
+diff --git a/util.h b/util.h
+index c0a50d4..6db39c8 100644
+--- a/util.h
++++ b/util.h
+@@ -7,3 +7,4 @@
+ 
+ void die(const char *fmt, ...);
+ void *ecalloc(size_t nmemb, size_t size);
++int startswith(const char* prefix, const char* str);
+-- 
+2.47.0
+
