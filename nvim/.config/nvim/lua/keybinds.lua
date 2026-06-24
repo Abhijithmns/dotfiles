@@ -12,12 +12,9 @@ vim.opt.shiftwidth = 4
 vim.opt.autoindent = true
 vim.opt.smartindent = true
 
--- Copy current line
-vim.api.nvim_set_keymap('n', '<leader>c', '"+yy', { noremap = true, silent = true })
--- Copy visual selection
-vim.api.nvim_set_keymap('v', '<leader>c', '"+y', { noremap = true, silent = true })
 
--- Paste from clipboard
+-- Clipboard stuff
+vim.opt.clipboard = 'unnamedplus'
 vim.api.nvim_set_keymap('n', '<leader>p', '"+p', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('v', '<leader>p', '"+p', { noremap = true, silent = true })
 
@@ -26,7 +23,35 @@ vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 
+vim.api.nvim_create_autocmd('TextYankPost', {
+    desc = 'Highlight when yanking (copying) text',
+    group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
+    callback = function() vim.hl.on_yank() end,
+})
 
+vim.keymap.set('n', 'ye', 'ggVG"+y', {
+    desc = 'Yank entire file to system clipboard',
+})
+
+
+-- Set highlight on search but clear on pressing <Esc> on normal mode
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
+-- Diagnostics
+
+vim.keymap.set('n', 'tp', function()
+  vim.diagnostic.jump({
+    count = -1,
+  })
+end, { desc = "Previous diagnostic" })
+
+vim.keymap.set('n', 'tn', function()
+  vim.diagnostic.jump({
+    count = 1,
+  })
+end, { desc = "Next diagnostic" })
+
+-- Toggle Completion
 vim.keymap.set("n", "<leader>tc", function()
   local cmp = require("cmp")
   local current = cmp.get_config().enabled

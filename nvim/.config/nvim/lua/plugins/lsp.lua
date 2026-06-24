@@ -3,7 +3,7 @@ return {
 		"mason-org/mason.nvim",
 		opts = {
 			ui = {
-				border = "rounded",
+				border = "single",
 			},
 		},
 	},
@@ -76,7 +76,7 @@ return {
 
 			-- Keymaps
 			vim.keymap.set("n", "K", function()
-				vim.lsp.buf.hover({ border = "rounded" })
+				vim.lsp.buf.hover({ border = "single" })
 			end)
 
 			vim.keymap.set("n", "gd", vim.lsp.buf.definition)
@@ -94,7 +94,7 @@ return {
 				update_in_insert = false,
 				severity_sort = true,
 				float = {
-					border = "rounded",
+					border = "single",
 				},
 			})
 		end,
