@@ -33,6 +33,8 @@ vim.keymap.set('n', 'ye', 'ggVG"+y', {
     desc = 'Yank entire file to system clipboard',
 })
 
+vim.keymap.set('n', 'de', 'ggVGd')
+
 
 -- Set highlight on search but clear on pressing <Esc> on normal mode
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
