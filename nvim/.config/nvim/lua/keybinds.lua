@@ -35,6 +35,7 @@ vim.keymap.set('n', 'ye', 'ggVG"+y', {
 
 vim.keymap.set('n', 'de', 'ggVGd')
 
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 
 -- Set highlight on search but clear on pressing <Esc> on normal mode
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
@@ -61,6 +62,8 @@ vim.keymap.set("n", "<leader>tc", function()
   print("CMP enabled:", not current)
 end)
 
-vim.keymap.set("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostics" })
+-- No swapfiles
+vim.opt.swapfile = false
+
 
 
