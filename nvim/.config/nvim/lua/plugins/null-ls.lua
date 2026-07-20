@@ -29,9 +29,6 @@ return {
                     -- Lua
                     null_ls.builtins.formatting.stylua,
 
-                    -- Markdown
-                    null_ls.builtins.diagnostics.markdownlint,
-
                     -- Spellcheck (completion only, safe everywhere)
                     null_ls.builtins.completion.spell,
                 },

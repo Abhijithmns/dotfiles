@@ -21,7 +21,6 @@ return {
 				"rust_analyzer",
 				"gopls",
 				"bashls",
-				"marksman",
 			},
 		},
 	},
@@ -67,7 +66,6 @@ return {
 				"rust_analyzer",
 				"gopls",
 				"bashls",
-				"marksman",
 			}
 
 			for _, server in ipairs(servers) do

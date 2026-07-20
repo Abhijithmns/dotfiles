@@ -1,31 +1,31 @@
 return {
-    "romus204/tree-sitter-manager.nvim",
-    dependencies = {}, -- tree-sitter CLI must be installed system-wide
-    config = function()
-        require("tree-sitter-manager").setup({
-            -- Default Options
-            parser_dir = vim.fn.stdpath("data") .. "/site/parser",
-            query_dir = vim.fn.stdpath("data") .. "/site/queries",
-            assume_installed = {}, -- blacklist languages
-            ensure_installed = {
-                "lua",
-                "c",
-                "rust",
-                "go",
-                "javascript",
-                "html",
-                "markdown",
-                "markdown_inline",
-            }, -- parsers to install at startup
-            auto_install = true, -- auto-install when a new filetype is encountered
-            noauto_install = {}, -- blacklist from auto_install
-            highlight = true, -- enable treesitter highlighting (use list to whitelist)
-            nohighlight = {}, -- blacklist from highlight
-            languages = {}, -- override or add new parser sources
-            nerdfont = true, -- use Nerd Font icons in the manager UI
-            border = "rounded", -- border style for the TUI window
-            min_width = 78, -- minimum size of the TUI
-            min_height = 40,
-        })
-    end,
+    {
+        "nvim-treesitter/nvim-treesitter",
+        build = ":TSUpdate",
+        lazy = false,
+
+        config = function()
+            require("nvim-treesitter.configs").setup({
+                ensure_installed = {
+                    "c",
+                    "cpp",
+                    "go",
+                    "lua",
+                    "python",
+                    "rust",
+                    "javascript",
+                    "typescript",
+                    "tsx",
+                },
+
+                highlight = {
+                    enable = true,
+                },
+
+                indent = {
+                    enable = true,
+                },
+            })
+        end,
+    },
 }
