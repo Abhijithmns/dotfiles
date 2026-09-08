@@ -13,6 +13,7 @@ vim.opt.autoindent = true
 vim.opt.smartindent = true
 
 
+
 -- Clipboard stuff
 vim.opt.clipboard = 'unnamedplus'
 vim.api.nvim_set_keymap('n', '<leader>p', '"+p', { noremap = true, silent = true })

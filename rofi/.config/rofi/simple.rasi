@@ -40,7 +40,7 @@ configuration {
 	alternate-urgent-foreground: var(background);
 	alternate-active-background: var(active);
 	alternate-active-foreground: var(background);
-	font: "JetBrainsMono Nerd Font 10";
+	font: "Iosevka Nerd Font 10";
 }
 
 window {

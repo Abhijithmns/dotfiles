@@ -69,16 +69,17 @@ zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 alias ls='lsd'
 alias vi='nvim'
 alias mkdir='mkdir -v'
-alias rm ='rm -v'
+alias rm='rm -v'
 alias chafa='chafa -f kitty'
 alias ranger='TERM=kitty ranger'
 alias show='bash ~/suckless/st/icat-mini.sh'
 alias spotify_player='TERM=xterm-kitty spotify_player'
  # git
-alias gc = 'git commit --verbose'
-alias git s = 'git status'
-alias git log = 'git log --oneline --graph --decorate --all'
+alias gc='git commit --verbose'
 
+alias gs='git status'
+
+alias gl='git log --oneline --graph --decorate --all'
 
 eval "$(fzf --zsh)"
 

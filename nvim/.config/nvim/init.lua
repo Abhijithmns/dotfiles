@@ -16,6 +16,8 @@ vim.opt.rtp:prepend(lazypath)
 require("keybinds")
 require("lazy").setup("plugins")
 
+vim.opt.showmode = false
+
 vim.cmd([[
   hi Normal guibg=NONE ctermbg=NONE
   hi NormalNC guibg=NONE ctermbg=NONE
